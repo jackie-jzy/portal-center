@@ -1,0 +1,18 @@
+server:
+  port: 8082
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.10.199:3306/system_center?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: client
+    password: Client!@#0
+  redis:
+    # redis 单机环境配置
+    host: 192.168.10.199
+    port: 6379
+    database: 0
+    password:
+
+##开启swagger doc
+knife4j:
+  production: true

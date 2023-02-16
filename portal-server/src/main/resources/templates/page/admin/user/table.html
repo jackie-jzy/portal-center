@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/lib/layui-v2.6.3/css/layui.css" media="all">
+    <link rel="stylesheet" href="/css/public.css" media="all">
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+
+        <fieldset class="table-search-fieldset">
+            <legend>搜索信息</legend>
+            <div style="margin: 10px 10px 10px 10px">
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">账号</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="username" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">状态</label>
+                            <div class="layui-input-inline">
+                                <select name="enabled">
+                                    <option value="">请选择</option>
+                                    <option value="0">停用</option>
+                                    <option value="1">启用</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">创建时间</label>
+                            <div class="layui-input-inline">
+                                <input type="text" autocomplete="off" id="createDate"
+                                       class="layui-input"
+                                       placeholder="yyyy-MM-dd">
+                            </div>
+                            <input type="text" style="display: none" id="startDate" name="startDate" autocomplete="off"
+                                   class="layui-input">
+                            <input type="text" style="display: none" id="endDate" name="endDate" autocomplete="off"
+                                   class="layui-input">
+                        </div>
+                        <div class="layui-inline">
+                            <button type="submit" class="layui-btn layui-btn-primary layui-border-blue" lay-submit
+                                    lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索
+                            </button>
+                            <button type="reset" class="layui-btn layui-btn-primary"
+                                    lay-filter="data-reset-btn">重置
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+
+        <script type="text/html" id="toolbar">
+            <div class="layui-btn-container">
+                <button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="add">
+                    <i class="layui-icon layui-icon-addition"></i>添加
+                </button>
+                </button>
+            </div>
+        </script>
+
+        <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+
+        <script type="text/html" id="currentTableBar">
+            <a class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="edit">
+                <i class="layui-icon layui-icon-edit"></i>编辑</a>
+            <a class="layui-btn layui-btn-xs layui-btn-primary layui-border-green" lay-event="more">
+                更多<i class="layui-icon layui-icon-down"></i></a>
+        </script>
+
+    </div>
+</div>
+<script src="/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="/js/lay-config.js" charset="utf-8"></script>
+
+<script type="text/html" id="switchTpl">
+    <!-- 这里的 checked 的状态只是演示 -->
+    <input type="checkbox" name="id" value="{{d.id}}" lay-skin="switch" lay-text="启用|停用"
+           lay-filter="enabledFilter" {{d.enabled== 1 ? 'checked' : '' }}>
+</script>
+<script th:inline="none">
+    layui.use(['dropdown', 'laydate', 'form', 'table', 'common'], function () {
+        var $ = layui.jquery,
+            dropdown = layui.dropdown,
+            form = layui.form,
+            table = layui.table,
+            laydate = layui.laydate,
+            common = layui.common;
+
+        //日期范围
+        var nowDate = common.getRecentDay(0);
+        $("#startDate").val(nowDate + ' 00:00:00');
+        $("#endDate").val(nowDate + ' 23:59:59');
+        laydate.render({
+            elem: '#createDate',
+            //设置开始日期、日期日期的 input 选择器
+            //数组格式为 2.6.6 开始新增，之前版本直接配置 true 或任意分割字符即可
+            range: "至",
+            value: nowDate + ' 至 ' + nowDate,
+            max: nowDate,
+            done: function (value, date, endDate) {
+                //点击日期、清空、现在、确定均会触发。回调返回三个参数，分别代表：生成的值、日期时间对象、结束的日期时间对象
+                if (value) {
+                    let strArr = value.split(' 至 ');
+                    $("#startDate").val(strArr[0] + ' 00:00:00');
+                    $("#endDate").val(strArr[1] + ' 23:59:59');
+                } else {
+                    $("#startDate").val('');
+                    $("#endDate").val('');
+                }
+            }
+        });
+
+        table.render({
+            title: '用户列表',
+            elem: '#currentTableId',
+            url: '/admin/user/table',
+            toolbar: '#toolbar',
+            defaultToolbar: ['filter', 'exports', 'print', {
+                title: '提示',
+                layEvent: 'LAYTABLE_TIPS',
+                icon: 'layui-icon-tips'
+            }],
+            cols: [[
+                // {type: "checkbox"},
+                {type: 'numbers', title: '序号', fixed: 'left'},
+                // {field: 'id', title: 'ID', align: 'center', sort: true},
+                {field: 'username', title: '用户名'},
+                {field: 'nickname', title: '昵称'},
+                {field: 'phone', title: '手机号'},
+                {field: 'email', title: '邮箱'},
+                {field: 'createUser', title: '创建人'},
+                {field: 'createTime', title: '创建时间', sort: true},
+                {
+                    field: 'enabled',
+                    title: '状态',
+                    width: 95,
+                    templet: '#switchTpl',
+                    align: 'center',
+                    fixed: 'right'
+                },
+                {title: '操作', toolbar: '#currentTableBar', align: 'center', fixed: 'right'}
+            ]],
+            // done: function (res, curr, count) {
+            //     $("[data-field='enabled']").children().each(function () {
+            //         if ($(this).text() == '1') {
+            //             $(this).text("启用")
+            //         } else if ($(this).text() == '0') {
+            //             $(this).text("停用")
+            //         }
+            //     });
+            // },
+            limits: [10, 15, 20, 25, 50, 100],
+            limit: 15,
+            height: 'full-170',
+            cellMinWidth: 80,
+            page: true,
+            text: {none: '暂无内容'},
+            request: {
+                pageName: 'current', // page
+            },
+            response: {
+                statusCode: 200 //重新规定成功的状态码为 200，table 组件默认为 0
+            },
+            skin: 'line',
+            parseData: common.parseData
+        });
+
+        //监听状态操作
+        form.on('switch(enabledFilter)', function (obj) {
+            var data = {id: this.value, enabled: obj.elem.checked ? 1 : 0}
+            layer.confirm('确定操作', function (index) {
+                layer.close(index);
+                $.ajax({
+                    url: '/admin/user/enabled',
+                    type: 'put',
+                    dataType: 'json',
+                    data: JSON.stringify(data),
+                    success: function (res) {
+                        if (res.code == 200) {
+                            layer.msg('操作成功', {time: 1000});
+                        }
+                    },
+                });
+            });
+        });
+
+        // 监听搜索操作
+        form.on('submit(data-search-btn)', function (data) {
+            //执行搜索重载
+            table.reload('currentTableId', {
+                page: {
+                    current: 1
+                }
+                , where: data.field
+            }, 'data');
+            return false;
+        });
+
+        /**
+         * toolbar监听事件
+         */
+        table.on('toolbar(currentTableFilter)', function (obj) {
+            if (obj.event === 'add') {  // 监听添加操作
+                var index = layer.open({
+                    title: '添加用户',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin: true,
+                    shadeClose: true,
+                    area: ['50%', '90%'],
+                    content: '/route/admin/user/add',
+                    zIndex: layer.zIndex,
+                    success: function (layero, index) {
+                        window[layero.find("iframe")[0]["name"]].back = function (cb) {
+                            cb && cb();
+                            window.location.reload();
+                            layer.close(index);
+                        };
+                    },
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+            }
+        });
+
+        //监听表格复选框选择
+        // table.on('checkbox(currentTableFilter)', function (obj) {
+        //     console.log(obj)
+        // });
+
+        table.on('tool(currentTableFilter)', function (obj) {
+            var that = this;
+            var data = obj.data;
+            if (obj.event === 'edit') {
+                var index = layer.open({
+                    title: '编辑用户',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin: true,
+                    shadeClose: true,
+                    area: ['50%', '90%'],
+                    content: '/route/admin/user/edit?id=' + data.id,
+                    zIndex: layer.zIndex,
+                    success: function (layero, index) {
+                        window[layero.find("iframe")[0]["name"]].back = function (cb) {
+                            cb && cb();
+                            window.location.reload();
+                            layer.close(index);
+                        };
+                    },
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+                return false;
+            } else if (obj.event === 'more') {
+                //更多下拉菜单
+                dropdown.render({
+                    elem: that
+                    , show: true //外部事件触发即显示
+                    , data: [{
+                        title: '分配角色'
+                        , id: 'editRole'
+                    }, {
+                        title: '重置密码'
+                        , id: 'resetPwd'
+                    }]
+                    , click: function (data, othis) {
+                        //根据 id 做出不同操作
+                        if (data.id === 'editRole') {
+
+                        } else if (data.id === 'resetPwd') {
+
+                        }
+                    }
+                    // , align: 'right' //右对齐弹出（v2.6.8 新增）
+                    , style: 'box-shadow: 1px 1px 10px rgb(0 0 0 / 12%);' //设置额外样式
+                });
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

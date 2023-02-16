@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.winter.portal.server.mapper.ResourceMapper">
+
+    <select id="leftMenu" resultType="com.winter.portal.server.entity.ResourceEntity">
+        select t1.*
+        from sys_resource t1
+        <if test="isRoot == 0">
+            inner join sys_role_resource t2 on t1.id = t2.resource_id
+        </if>
+        where t1.type &lt; 3
+        <if test="isRoot == 0">
+            <foreach collection="roleIds" item="item" separator="," open="and t2.role_id in (" close=")">
+                #{item}
+            </foreach>
+        </if>
+        group by t1.id
+    </select>
+
+</mapper>

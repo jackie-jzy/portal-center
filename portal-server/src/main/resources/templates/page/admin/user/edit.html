@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/lib/layui-v2.6.3/css/layui.css" media="all">
+    <link rel="stylesheet" href="/css/public.css" media="all">
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-form layuimini-form" lay-filter="form-user-edit">
+    <input type="hidden" id="userId" name="id" th:value="${id}" class="layui-input">
+    <div class="layui-form-item">
+        <label class="layui-form-label required">用户名</label>
+        <div class="layui-input-block">
+            <input type="text" name="username" disabled value="" class="layui-input layui-disabled">
+            <tip>填写自己管理账号的名称。</tip>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label required">昵称</label>
+        <div class="layui-input-block">
+            <input type="text" name="nickname" lay-verify="required" lay-reqtext="昵称不能为空" placeholder="请输入昵称" value=""
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label required">手机</label>
+        <div class="layui-input-block">
+            <input type="number" name="phone" lay-verify="required" lay-reqtext="手机不能为空" placeholder="请输入手机" value=""
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">邮箱</label>
+        <div class="layui-input-block">
+            <input type="email" name="email" placeholder="请输入邮箱" value="" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label required">启用</label>
+        <div class="layui-input-block">
+            <input type="radio" name="enabled" value="1" title="启用">
+            <input type="radio" name="enabled" value="0" title="停用" checked="checked">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label required">超级管理员</label>
+        <div class="layui-input-block">
+            <input type="radio" name="root" value="1" title="是">
+            <input type="radio" name="root" value="0" title="否" checked="checked">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">确认保存</button>
+        </div>
+    </div>
+</div>
+</div>
+<script src="/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="/js/lay-config.js" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'common'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+
+        // 获取数据
+        $.ajax({
+            url: '/admin/user?id=' + $('#userId').val(),
+            type: 'get',
+            dataType: 'json',
+            success: function (res) {
+                if (res.code == 200) {
+                    var data = res.data;
+                    if (data != null) {
+                        form.val("form-user-edit", {
+                            "username": data.username,
+                            "nickname": data.nickname,
+                            "phone": data.phone,
+                            "email": data.email,
+                            "enabled": data.enabled,
+                            "root": data.root
+                        });
+                    }
+                }
+            },
+        });
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            console.log(JSON.stringify(data.field));
+            $.ajax({
+                url: '/admin/user',
+                type: 'put',
+                dataType: 'json',
+                data: JSON.stringify(data.field),
+                success: function (res) {
+                    if (res.code == 200) {
+                        layer.msg('操作成功', {time: 500}, function () {
+                            // 刷新列表
+                            window.back();
+                        });
+                    }
+                },
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+server:
+  port: 8081
+spring:
+  #  cloud:
+  #    nacos:
+  #      discovery:
+  #        server-addr: localhost:8848
+  #        username:
+  #        password:
+  #        namespace:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/system_center?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: ENC(gcEx6x7wGWpr/WCNRSuvWjkBJaO6PhGPYWBCTZa5ZJkQhHcJ4b7E6K9yEOi8VhId)
+    password: ENC(SYloB7z2Dk5u0j55jsviRV2eh0yluLB+ziHN0tmmvSnL3/actB7LnkhaEBGxTzSv)
+  redis:
+    # redis 单机环境配置
+    host: localhost
+    port: 6379
+    database: 0
+    password:
+  thymeleaf:
+    cache: false
+
+## jwt
+jwt:
+  secretKey: de68225503344f51a9afe0397ce7b45b
+  accessTokenExpireTime: PT1H
+  issuer: portal-center
+
+logging:
+  config: classpath:logback-dev.xml

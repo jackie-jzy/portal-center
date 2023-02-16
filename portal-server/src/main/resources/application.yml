@@ -1,0 +1,40 @@
+server:
+  shutdown: GRACEFUL
+#  tomcat:
+#    性能优化重要参数需要结合 linux服务器参数：net.core.somaxconn 做优化 （accept-queue（全连接队列））
+#    accept-count:
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: portal
+  mail:
+    host: smtpdm.aliyun.com
+    username:
+    password:
+  thymeleaf:
+    mode: LEGACYHTML5
+    prefix: classpath:templates/
+    suffix: .html
+
+#swagger配置
+knife4j:
+  enable: true
+  openapi:
+    title: 系统管理中心 (portal-center)
+    version: 1.0
+    description: 系统管理与认证授权
+    concat: jzyan
+    group:
+      annotation:
+        group-name: 根据注解
+        api-rule: annotation
+        api-rule-resources:
+          - io.swagger.annotations.ApiOperation
+  setting:
+    custom-code: 403
+
+jasypt:
+  encryptor:
+    password: de68225503344f51a9afe0397ce7b45b
