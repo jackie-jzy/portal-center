@@ -1,5 +1,4 @@
 server:
-  shutdown: GRACEFUL
 #  tomcat:
 #    性能优化重要参数需要结合 linux服务器参数：net.core.somaxconn 做优化 （accept-queue（全连接队列））
 #    accept-count:
